@@ -1,0 +1,54 @@
+## 2026-03-25 test architecture + QA mapping
+
+- Plan QA target confirmed from `/Users/andrejprus/Herd/aion-crm/.sisyphus/plans/crm-core-universal-functions.md`: each CRM wave should ship with action-level tests under `tests/App/Modules/**`, HTTP integration tests under `tests/Integration/Http/**`, and Livewire functional tests when UI logic exists; integration tests are expected to include a `test_it_integrates()` smoke path.
+- Base classes:
+  - `/Users/andrejprus/Herd/aion-crm/tests/Support/TestCases/FunctionalTestCase.php` = default for functional, integration, and current Livewire tests. It uses `RefreshDatabase`, boots the app via `/Users/andrejprus/Herd/aion-crm/tests/Support/CreatesApplication.php`, prevents stray `Http` + `Process` calls, fakes `Sleep`, binds `LogFake`, and freezes time with `freezeSecond()`.
+  - `/Users/andrejprus/Herd/aion-crm/tests/Support/TestCases/UnitTestCase.php` = pure PHPUnit base for isolated unit tests; only notable behavior is `Mockery::close()` in `tearDown()`.
+- File placement + naming already in use:
+  - Action/model/provider/module tests mirror `app/` under `tests/App/**` and typically end in `FunctionalTest.php` or `UnitTest.php`.
+  - HTTP transport tests mirror `app/Http/` under `tests/Integration/Http/**` and end in `IntegrationTest.php`.
+  - Livewire component tests live under `tests/App/Livewire/**` and currently also extend `FunctionalTestCase` with names like `*FunctionalTest.php`.
+- Class metadata conventions visible in real tests:
+  - `#[CoversClass(...)]` is standard on test classes; use multiple attributes when one test covers DTO/controller/request pairs (example: `/Users/andrejprus/Herd/aion-crm/tests/Integration/Http/Api/Auth/LoginIntegrationTest.php`).
+  - `#[Group(...)]` is commonly added for domain grouping (examples: `authentication`, `users`, `models`).
+- AAA formatting is strict in examples:
+  - Block headers are exactly `// Arrange`, `// Anticipate` (when mocking expectations), `// Act`, `// Assert`.
+  - Representative examples: `/Users/andrejprus/Herd/aion-crm/tests/App/Modules/Users/Actions/CreateUserActionFunctionalTest.php`, `/Users/andrejprus/Herd/aion-crm/tests/Integration/Http/Api/Auth/LoginIntegrationTest.php`, `/Users/andrejprus/Herd/aion-crm/tests/App/Modules/Auth/Responses/TokenLoginResponseUnitTest.php`.
+- Best functional/module-level references to mirror:
+  - `/Users/andrejprus/Herd/aion-crm/tests/App/Modules/Users/Actions/CreateUserActionFunctionalTest.php` = smallest clean action test; resolves the action from the container and asserts DB state.
+  - `/Users/andrejprus/Herd/aion-crm/tests/App/Modules/Auth/Models/UserRelationshipsTest.php` = clean module/model relationship coverage using factories + `for($user)`.
+  - `/Users/andrejprus/Herd/aion-crm/tests/App/Modules/Auth/Responses/TokenLoginResponseUnitTest.php` = best unit test reference for pure object behavior, `Generator` data providers, and `UnitTestCase` usage.
+- Best integration references to mirror:
+  - `/Users/andrejprus/Herd/aion-crm/tests/Integration/Http/Api/Auth/LoginIntegrationTest.php` = strongest transport-layer pattern: mock the action in specific tests, post to named route, assert JSON/validation, then include `test_it_integrates()` without mocking.
+  - `/Users/andrejprus/Herd/aion-crm/tests/Integration/Http/Web/Users/UsersTableIntegrationTest.php` = strongest web + Livewire page integration example; authenticated request, `assertSeeLivewire(...)`, seeded data, plus `test_it_integrates()`.
+  - `/Users/andrejprus/Herd/aion-crm/tests/Integration/Http/Web/Auth/LoginPageIntegrationTest.php` = smallest web page integration smoke pattern.
+- Best Livewire references to mirror:
+  - `/Users/andrejprus/Herd/aion-crm/tests/App/Livewire/Users/UsersTablePageFunctionalTest.php` = render/assert content with `Livewire::test(...)` after auth + seeding.
+  - `/Users/andrejprus/Herd/aion-crm/tests/App/Livewire/Auth/LoginPageFunctionalTest.php` = state mutation + action call + redirect/error assertions.
+- Factory organization patterns:
+  - Module-scoped factories exist under `/Users/andrejprus/Herd/aion-crm/database/factories/Modules/**` (examples: `/Users/andrejprus/Herd/aion-crm/database/factories/Modules/Users/Models/UserFactory.php`, `/Users/andrejprus/Herd/aion-crm/database/factories/Modules/Auth/Models/UserTwoFactorAuthFactory.php`).
+  - There is also a root Laravel-style `/Users/andrejprus/Herd/aion-crm/database/factories/UserFactory.php`; CRM work should check the target model’s existing factory resolution pattern before copying either style.
+  - Common usage in tests is `Model::factory()->create()`, state methods like `->unverified()` / `->confirmed()`, and relationship helpers like `->for($user)`.
+- Seeder patterns:
+  - `/Users/andrejprus/Herd/aion-crm/database/seeders/DatabaseSeeder.php` calls `/Users/andrejprus/Herd/aion-crm/database/seeders/DemoUsersSeeder.php`.
+  - Current tests usually seed explicitly with `$this->seed(DemoUsersSeeder::class)` after overriding `config('demo-users.users')`; good reference in `/Users/andrejprus/Herd/aion-crm/tests/App/Livewire/Auth/LoginPageFunctionalTest.php` and `/Users/andrejprus/Herd/aion-crm/tests/Integration/Http/Web/Users/UsersTableIntegrationTest.php`.
+  - Seeder implementation uses `User::query()->updateOrCreate(...)`, so current seeded test data is deterministic by email rather than random.
+- Selector/UI hook status:
+  - No existing `data-testid` usage found anywhere in the repo, including Blade, Livewire, PHP, or frontend files.
+  - For CRM task planning, selector-driven QA hooks are a repo gap, not an existing pattern to mirror; the closest current UI assertion pattern is Livewire/component presence via `assertSeeLivewire(...)` and text assertions.
+- Gaps to note explicitly for CRM planning:
+  - No Playwright test examples were found.
+  - No existing CRM/module-level test examples exist yet; Auth + Users are the nearest mirrors.
+  - No existing `data-testid` convention is implemented despite the CRM plan requiring one.
+## 2026-03-25 UI pattern map for CRM shell/table work
+- Plan target alignment: Task 3 explicitly points to `/Users/andrejprus/Herd/aion-crm/resources/views/components/layout/app.blade.php`, `/Users/andrejprus/Herd/aion-crm/resources/views/pages/login.blade.php`, `/Users/andrejprus/Herd/aion-crm/resources/views/livewire/users/users-table-page.blade.php`, and `/Users/andrejprus/Herd/aion-crm/app/Livewire/Users/UsersTablePage.php` as the current baseline.
+- Authenticated shell baseline: `/Users/andrejprus/Herd/aion-crm/resources/views/components/layout/app.blade.php` is the only app shell. It provides the HTML document, `@livewireStyles`, optional `@vite(...)`, `body` classes `min-h-screen bg-stone-50 font-sans text-stone-950 antialiased`, and a single `{{ $slot }}` inside `#app`. No nav/sidebar/header/flash region exists yet.
+- Thin page wrapper pattern: `/Users/andrejprus/Herd/aion-crm/resources/views/pages/users.blade.php` wraps content in `<x-layout.app>`, then uses one centered `<main>` container (`mx-auto`, `max-w-5xl`, `px-4 py-10`) with a local title/description block above the Livewire component. `/Users/andrejprus/Herd/aion-crm/resources/views/pages/login.blade.php` follows the same thin-wrapper idea with a centered `<main>` and delegates all page-specific UI to Livewire.
+- Page header baseline: the current header pattern is plain in-page markup, not a shared component. Best reference is `/Users/andrejprus/Herd/aion-crm/resources/views/pages/users.blade.php` lines 2-6: stacked title + supporting copy in a `space-y-1` container.
+- Livewire page component shape: `/Users/andrejprus/Herd/aion-crm/app/Livewire/Users/UsersTablePage.php` is the baseline class shape: public state, optional `mount()`, simple `render()` returning a Blade view. `/Users/andrejprus/Herd/aion-crm/app/Livewire/Auth/LoginPage.php` shows the same shape plus validation and `redirectRoute(..., navigate: true)` after success.
+- Table baseline: `/Users/andrejprus/Herd/aion-crm/resources/views/livewire/users/users-table-page.blade.php` is the only inspected list/table pattern. Structure is `rounded-2xl border bg-white shadow-sm` card -> `overflow-x-auto` wrapper -> semantic `<table>` with `thead`/`tbody`, compact cell padding, and `@forelse` row rendering.
+- Empty state baseline: same file uses the table-empty-row pattern, not a standalone empty-state component. Reference: `/Users/andrejprus/Herd/aion-crm/resources/views/livewire/users/users-table-page.blade.php` lines 18-21 (`@empty` -> one full-width `<td colspan="2" class="... text-center text-stone-500">No users available.</td>`).
+- Filters baseline: no reusable filter bar exists yet. No current Blade/Livewire view in the inspected surface contains a list filter control above a table. Nearest reusable pattern is the login form field stack in `/Users/andrejprus/Herd/aion-crm/resources/views/livewire/auth/login-page.blade.php` for spacing, labels, inputs, and focus styling.
+- Flash/error baseline: no general flash area or session-status component exists in the inspected views. The only current error rendering is inline Livewire validation in `/Users/andrejprus/Herd/aion-crm/resources/views/livewire/auth/login-page.blade.php`: one top-level error summary box (`$errors->any()`) plus field-level `@error(...)` messages.
+- Deterministic selector convention: there are currently no `data-testid` attributes in the repository search surface (`grep` returned no matches). Task 3 will need to introduce this convention from scratch. The nearest stable existing hooks are route names (`login`, `users.index` in `/Users/andrejprus/Herd/aion-crm/app/Http/Web/routes/web.php`), Livewire component names (`auth.login-page`, `users.users-table-page`), semantic HTML (`table`, `thead`, `tbody`), and input IDs in the login form (`email`, `password`).
+- Frontend entrypoint note: `/Users/andrejprus/Herd/aion-crm/resources/css/app.css` is Tailwind 4 with broad `@source` scanning for Blade, JS, and compiled views; no component-level selector convention is defined there.

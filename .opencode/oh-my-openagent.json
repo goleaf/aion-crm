@@ -1,0 +1,88 @@
+{
+    "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+    "new_task_system_enabled": true,
+    "claude_code": {
+        "mcp": true,
+        "commands": true,
+        "skills": true,
+        "agents": true,
+        "hooks": true,
+        "plugins": true
+    },
+    "notification": {
+        "force_enable": true
+    },
+    "start_work": {
+        "auto_commit": false
+    },
+    "ralph_loop": {
+        "enabled": true,
+        "default_max_iterations": 100,
+        "state_dir": ".sisyphus",
+        "default_strategy": "continue"
+    },
+    "sisyphus": {
+        "tasks": {
+            "storage_path": ".sisyphus/tasks",
+            "claude_code_compat": true
+        }
+    },
+    "agents": {
+        "hephaestus": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "oracle": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "librarian": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "explore": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "multimodal-looker": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "prometheus": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "metis": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "momus": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "atlas": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "sisyphus-junior": {
+            "model": "opencode/gpt-5.3-codex"
+        }
+    },
+    "categories": {
+        "visual-engineering": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "ultrabrain": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "deep": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "artistry": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "quick": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "unspecified-low": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "unspecified-high": {
+            "model": "opencode/gpt-5.3-codex"
+        },
+        "writing": {
+            "model": "opencode/gpt-5.3-codex"
+        }
+    }
+}

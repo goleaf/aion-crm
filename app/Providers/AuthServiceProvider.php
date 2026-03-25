@@ -4,11 +4,15 @@ namespace App\Providers;
 
 use App\Modules\Auth\Services\TokenIssuers\AuthTokenIssuerContract;
 use App\Modules\Auth\Services\TokenIssuers\NullTokenIssuer;
+use App\Modules\CRM\Authorization\CrmRecordVisibility;
+use App\Modules\CRM\Authorization\CrmTeamAssignmentRules;
+use App\Modules\Shared\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,6 +35,7 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->bootEmailVerificationDefaults();
+        $this->bootCrmAuthorizationDefaults();
     }
 
     private function bootEmailVerificationDefaults(): void
@@ -52,6 +57,17 @@ class AuthServiceProvider extends ServiceProvider
             $queryParamsToForward .= '&id='.$notifiable->getKey().'&hash='.sha1($notifiable->getEmailForVerification());
 
             return config('webhooks.frontend.redirects.email_verification_notice')."?{$queryParamsToForward}";
+        });
+    }
+
+    private function bootCrmAuthorizationDefaults(): void
+    {
+        Gate::define('crm.records.view', function (User $actor, int $ownerId, ?int $ownerTeamId): bool {
+            return CrmRecordVisibility::canViewRecord($actor, $ownerId, $ownerTeamId);
+        });
+
+        Gate::define('crm.records.reassign', function (User $actor, User $sourceOwner, User $targetOwner): bool {
+            return CrmTeamAssignmentRules::canReassignOwnedRecords($actor, $sourceOwner, $targetOwner);
         });
     }
 }

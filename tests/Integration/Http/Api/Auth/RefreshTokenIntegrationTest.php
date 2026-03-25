@@ -39,7 +39,7 @@ class RefreshTokenIntegrationTest extends FunctionalTestCase
 
         // Anticipate
 
-        $refreshTokenActionMock = $this->mock(
+        $this->mock(
             RefreshTokenAction::class,
             fn (MockInterface $mock) => $mock->expects('execute')
                 ->with('old-refresh-token')
@@ -111,7 +111,7 @@ class RefreshTokenIntegrationTest extends FunctionalTestCase
     {
         // Arrange
 
-        $user = User::factory()->create();
+        User::factory()->create();
 
         // Act
 

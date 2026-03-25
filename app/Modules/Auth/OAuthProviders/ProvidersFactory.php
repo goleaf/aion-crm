@@ -6,6 +6,7 @@ use App\Modules\Auth\OAuthProviders\Enum\ProviderEnum;
 use App\Modules\Auth\OAuthProviders\Providers\AppleOAuthProvider;
 use App\Modules\Auth\OAuthProviders\Providers\GitHubOAuthProvider;
 use App\Modules\Auth\OAuthProviders\Providers\GoogleOAuthProvider;
+use RuntimeException;
 
 /** @final */
 class ProvidersFactory
@@ -30,7 +31,7 @@ class ProvidersFactory
         };
 
         if (! class_exists($driverClass)) {
-            throw new \RuntimeException("OAuth provider [{$provider->value}] is not installed. Please install the [socialiteproviders/{$provider->value}] package.");
+            throw new RuntimeException("OAuth provider [{$provider->value}] is not installed. Please install the [socialiteproviders/{$provider->value}] package.");
         }
     }
 }

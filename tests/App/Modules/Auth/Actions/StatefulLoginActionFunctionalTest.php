@@ -57,7 +57,7 @@ class StatefulLoginActionFunctionalTest extends FunctionalTestCase
 
         $authManagerMock
             ->shouldHaveReceived('login')
-            ->withArgs(function (User $userArg, bool $rememberArg) use ($user, $remember) {
+            ->withArgs(function (User $userArg, bool $rememberArg) use ($user, $remember): true {
                 $this->assertTrue(
                     $user->is($userArg),
                 );
@@ -110,13 +110,13 @@ class StatefulLoginActionFunctionalTest extends FunctionalTestCase
 
         $twoAuthResponseStub = SessionLoginResponse::pendingTwoFactorAuth($user, '::2fa_token::');
 
-        $beforeLoginHookStub = new class($twoAuthResponseStub)
+        $beforeLoginHookStub = new readonly class($twoAuthResponseStub)
         {
             public function __construct(
-                private readonly SessionLoginResponse $responseStub,
+                private SessionLoginResponse $responseStub,
             ) {}
 
-            public function __invoke()
+            public function __invoke(): SessionLoginResponse
             {
                 return $this->responseStub;
             }

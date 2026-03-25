@@ -17,6 +17,28 @@ final readonly class Money
         return new self($amountInMinorUnits, $currency);
     }
 
+    public static function fromDecimal(string $amountDecimal, CurrencyCodeEnum $currency): self
+    {
+        $normalizedAmount = trim($amountDecimal);
+
+        preg_match('/^(?<sign>-)?(?<whole>\d+)(?:\.(?<fraction>\d{1,2}))?$/', $normalizedAmount, $matches);
+
+        throw_if($matches === [], InvalidArgumentException::class, 'Money value must be a valid decimal string.');
+
+        $whole = (int) ($matches['whole'] ?? 0);
+        $fraction = str_pad((string) ($matches['fraction'] ?? ''), 2, '0');
+        $amountInMinorUnits = ($whole * 100) + (int) $fraction;
+
+        if (($matches['sign'] ?? null) === '-') {
+            $amountInMinorUnits *= -1;
+        }
+
+        return new self(
+            amountInMinorUnits: $amountInMinorUnits,
+            currency: $currency,
+        );
+    }
+
     public function toDecimal(): string
     {
         return number_format($this->amountInMinorUnits / 100, 2, '.', '');

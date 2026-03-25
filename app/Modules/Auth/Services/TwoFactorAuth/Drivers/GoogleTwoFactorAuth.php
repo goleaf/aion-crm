@@ -22,10 +22,7 @@ final readonly class GoogleTwoFactorAuth implements TwoFactorAuthProviderContrac
         try {
             return $this->google2fa->generateSecretKey();
         } catch (Throwable $googleTwoFactorException) {
-            throw new UnableToGenerateSecretKeyException(
-                message: 'Unable to generate 2FA secret key',
-                previous: $googleTwoFactorException,
-            );
+            throw new UnableToGenerateSecretKeyException(message: 'Unable to generate 2FA secret key', code: $googleTwoFactorException->getCode(), previous: $googleTwoFactorException);
         }
     }
 

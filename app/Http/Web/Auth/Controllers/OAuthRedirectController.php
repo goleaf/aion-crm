@@ -15,9 +15,7 @@ class OAuthRedirectController
         string $provider,
         ProvidersFactory $providersFactory,
     ): RedirectResponse {
-        if (! class_exists('Laravel\Socialite\Facades\Socialite')) {
-            abort(404);
-        }
+        abort_unless(class_exists('Laravel\Socialite\Facades\Socialite'), 404);
 
         $providerEnum = ProviderEnum::tryFrom($provider);
 

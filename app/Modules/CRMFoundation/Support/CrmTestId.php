@@ -20,7 +20,7 @@ final class CrmTestId
         $normalizedPrefix = self::normalize($resolvedPrefix);
 
         $normalizedSegments = array_values(array_filter(
-            array_map(fn (string $segment): string => self::normalize($segment), $segments),
+            array_map(self::normalize(...), $segments),
             fn (string $segment): bool => $segment !== '',
         ));
 

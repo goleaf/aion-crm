@@ -26,7 +26,7 @@ class UsersTableIntegrationTest extends FunctionalTestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_it_displays_seeded_users_credentials_for_authenticated_users(): void
+    public function test_it_displays_logout_action_for_authenticated_users(): void
     {
         // Arrange
 
@@ -55,11 +55,10 @@ class UsersTableIntegrationTest extends FunctionalTestCase
 
         $response
             ->assertOk()
-            ->assertSeeLivewire(UsersTablePage::class)
-            ->assertSee('Alpha User')
-            ->assertSee('Beta User')
-            ->assertSee('password-alpha')
-            ->assertSee('password-beta');
+            ->assertSee('You are signed in.')
+            ->assertSee('Logout')
+            ->assertDontSee('password-alpha')
+            ->assertDontSee('password-beta');
     }
 
     public function test_it_integrates(): void
@@ -84,6 +83,8 @@ class UsersTableIntegrationTest extends FunctionalTestCase
 
         // Assert
 
-        $response->assertOk();
+        $response
+            ->assertOk()
+            ->assertSee('Logout');
     }
 }

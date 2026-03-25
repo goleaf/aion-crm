@@ -9,6 +9,9 @@ use App\Modules\CRM\Models\CrmUserProfile;
 use App\Modules\Shared\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<CrmUserProfile>
+ */
 class CrmUserProfileFactory extends Factory
 {
     protected $model = CrmUserProfile::class;

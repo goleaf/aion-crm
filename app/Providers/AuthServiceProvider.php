@@ -2,10 +2,20 @@
 
 namespace App\Providers;
 
+use App\Modules\Activities\Models\Activity;
+use App\Modules\Activities\Policies\ActivityPolicy;
 use App\Modules\Auth\Services\TokenIssuers\AuthTokenIssuerContract;
 use App\Modules\Auth\Services\TokenIssuers\NullTokenIssuer;
 use App\Modules\CRM\Authorization\CrmRecordVisibility;
 use App\Modules\CRM\Authorization\CrmTeamAssignmentRules;
+use App\Modules\CRM\Models\Account;
+use App\Modules\CRM\Models\Contact;
+use App\Modules\CRM\Models\Deal;
+use App\Modules\CRM\Models\Lead;
+use App\Modules\CRM\Policies\AccountPolicy;
+use App\Modules\CRM\Policies\ContactPolicy;
+use App\Modules\CRM\Policies\DealPolicy;
+use App\Modules\CRM\Policies\LeadPolicy;
 use App\Modules\Shared\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -24,7 +34,7 @@ class AuthServiceProvider extends ServiceProvider
     public function register(): void
     {
         /** @var class-string<AuthTokenIssuerContract> $issuer */
-        $issuer = config('auth.tokens.issuer') ?? NullTokenIssuer::class;
+        $issuer = config('auth.tokens.issuer', NullTokenIssuer::class);
 
         $this->app->bind(AuthTokenIssuerContract::class, $issuer);
     }
@@ -62,12 +72,14 @@ class AuthServiceProvider extends ServiceProvider
 
     private function bootCrmAuthorizationDefaults(): void
     {
-        Gate::define('crm.records.view', function (User $actor, int $ownerId, ?int $ownerTeamId): bool {
-            return CrmRecordVisibility::canViewRecord($actor, $ownerId, $ownerTeamId);
-        });
+        Gate::policy(Account::class, AccountPolicy::class);
+        Gate::policy(Activity::class, ActivityPolicy::class);
+        Gate::policy(Contact::class, ContactPolicy::class);
+        Gate::policy(Deal::class, DealPolicy::class);
+        Gate::policy(Lead::class, LeadPolicy::class);
 
-        Gate::define('crm.records.reassign', function (User $actor, User $sourceOwner, User $targetOwner): bool {
-            return CrmTeamAssignmentRules::canReassignOwnedRecords($actor, $sourceOwner, $targetOwner);
-        });
+        Gate::define('crm.records.view', fn (User $actor, int $ownerId, ?int $ownerTeamId): bool => CrmRecordVisibility::canViewRecord($actor, $ownerId, $ownerTeamId));
+
+        Gate::define('crm.records.reassign', fn (User $actor, User $sourceOwner, User $targetOwner): bool => CrmTeamAssignmentRules::canReassignOwnedRecords($actor, $sourceOwner, $targetOwner));
     }
 }

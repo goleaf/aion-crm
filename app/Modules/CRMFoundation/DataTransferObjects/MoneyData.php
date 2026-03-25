@@ -14,23 +14,17 @@ final readonly class MoneyData
 
     public static function fromDecimal(string $amountDecimal, CurrencyCodeEnum $currency, int $scale = 2): self
     {
-        if ($scale < 0 || $scale > 6) {
-            throw new InvalidArgumentException('Scale must be between 0 and 6.');
-        }
+        throw_if($scale < 0 || $scale > 6, InvalidArgumentException::class, 'Scale must be between 0 and 6.');
 
         $normalizedAmount = trim($amountDecimal);
 
         preg_match('/^(?<sign>-)?(?<whole>\d+)(?:\.(?<fraction>\d+))?$/', $normalizedAmount, $matches);
 
-        if ($matches === []) {
-            throw new InvalidArgumentException('Money amount must be a numeric decimal string.');
-        }
+        throw_if($matches === [], InvalidArgumentException::class, 'Money amount must be a numeric decimal string.');
 
         $fraction = $matches['fraction'] ?? '';
 
-        if (mb_strlen($fraction) > $scale) {
-            throw new InvalidArgumentException('Money amount has too many decimal places.');
-        }
+        throw_if(mb_strlen($fraction) > $scale, InvalidArgumentException::class, 'Money amount has too many decimal places.');
 
         $multiplier = 10 ** $scale;
         $wholeMinor = ((int) $matches['whole']) * $multiplier;
@@ -52,9 +46,7 @@ final readonly class MoneyData
 
     public function toDecimal(int $scale = 2): string
     {
-        if ($scale < 0 || $scale > 6) {
-            throw new InvalidArgumentException('Scale must be between 0 and 6.');
-        }
+        throw_if($scale < 0 || $scale > 6, InvalidArgumentException::class, 'Scale must be between 0 and 6.');
 
         if ($scale === 0) {
             return (string) $this->amountMinor;

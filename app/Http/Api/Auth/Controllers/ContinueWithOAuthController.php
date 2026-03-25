@@ -16,9 +16,7 @@ class ContinueWithOAuthController
         ContinueWithOAuthRequest $request,
         ContinueWithOAuthAction $continueWithOAuthAction,
     ): LoginResponse {
-        if (! class_exists('Laravel\Socialite\Facades\Socialite')) {
-            abort(404);
-        }
+        abort_unless(class_exists('Laravel\Socialite\Facades\Socialite'), 404);
 
         try {
             $loggedInUser = $continueWithOAuthAction->execute(

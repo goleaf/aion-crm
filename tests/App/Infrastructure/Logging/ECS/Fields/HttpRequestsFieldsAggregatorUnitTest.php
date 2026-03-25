@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Tests\Support\TestCases\UnitTestCase;
 
 #[CoversClass(HttpRequestsFieldsAggregator::class)]
@@ -79,7 +80,7 @@ class HttpRequestsFieldsAggregatorUnitTest extends UnitTestCase
 
         $uuid = fake()->uuid();
 
-        Str::createUuidsUsing(fn () => Uuid::fromString($uuid));
+        Str::createUuidsUsing(fn (): UuidInterface => Uuid::fromString($uuid));
 
         $aggregator = new HttpRequestsFieldsAggregator($request);
 

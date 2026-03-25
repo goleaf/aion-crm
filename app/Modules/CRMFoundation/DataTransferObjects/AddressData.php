@@ -16,12 +16,12 @@ final readonly class AddressData
     public static function fromArray(array $address): self
     {
         return new self(
-            lineOne: trim($address['line_one']),
+            lineOne: trim((string) $address['line_one']),
             lineTwo: self::normalizeNullable($address['line_two'] ?? null),
-            city: trim($address['city']),
+            city: trim((string) $address['city']),
             state: self::normalizeNullable($address['state'] ?? null),
             postalCode: self::normalizeNullable($address['postal_code'] ?? null),
-            countryCode: mb_strtoupper(trim($address['country_code'])),
+            countryCode: mb_strtoupper(trim((string) $address['country_code'])),
         );
     }
 

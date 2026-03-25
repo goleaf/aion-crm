@@ -107,13 +107,13 @@ class StatelessLoginActionFunctionalTest extends FunctionalTestCase
 
         $twoFactorResponseStub = TokenLoginResponse::pendingTwoFactorAuth($user, '::2fa_token::');
 
-        $beforeLoginHookStub = new class($twoFactorResponseStub)
+        $beforeLoginHookStub = new readonly class($twoFactorResponseStub)
         {
             public function __construct(
-                private readonly TokenLoginResponse $responseStub,
+                private TokenLoginResponse $responseStub,
             ) {}
 
-            public function __invoke()
+            public function __invoke(): TokenLoginResponse
             {
                 return $this->responseStub;
             }

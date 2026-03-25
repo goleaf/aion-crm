@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Api\Auth\Controllers as AuthControllers;
+use App\Http\Api\CRM\Controllers as CRMControllers;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')
@@ -45,10 +46,6 @@ Route::prefix('auth')
         });
     });
 
-/*
- * Protected Routes.
- */
-
 Route::middleware('auth')
     ->group(function (): void {
         Route::prefix('auth')
@@ -80,5 +77,20 @@ Route::middleware('auth')
                         ->middleware(['throttle:6,1'])
                         ->name('auth.verification.send');
                 });
+            });
+
+        Route::prefix('crm')
+            ->name('crm.')
+            ->group(function (): void {
+                Route::prefix('deals')
+                    ->name('deals.')
+                    ->group(function (): void {
+                        Route::get('/', CRMControllers\ListDealsController::class)->name('index');
+                        Route::post('/', CRMControllers\StoreDealController::class)->name('store');
+                        Route::get('{deal}', CRMControllers\ShowDealController::class)->name('show');
+                        Route::patch('{deal}', CRMControllers\UpdateDealController::class)->name('update');
+                        Route::post('{deal}/close-won', CRMControllers\CloseDealAsWonController::class)->name('close-won');
+                        Route::post('{deal}/close-lost', CRMControllers\CloseDealAsLostController::class)->name('close-lost');
+                    });
             });
     });

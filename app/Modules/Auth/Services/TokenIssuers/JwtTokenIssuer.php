@@ -24,9 +24,7 @@ class JwtTokenIssuer implements AuthTokenIssuerContract
     {
         $guard = $this->authManager->guard($guard);
 
-        if (! $guard instanceof JWTGuard) {
-            throw new InvalidArgumentException('The provided guard must be of type <'.JWTGuard::class.'>');
-        }
+        throw_unless($guard instanceof JWTGuard, InvalidArgumentException::class, 'The provided guard must be of type <'.JWTGuard::class.'>');
 
         $this->guard = $guard;
 

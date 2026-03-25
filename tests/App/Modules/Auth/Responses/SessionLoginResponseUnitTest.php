@@ -7,6 +7,7 @@ use App\Modules\Auth\Responses\SessionLoginResponse;
 use App\Modules\Shared\Models\User;
 use Generator;
 use Illuminate\Http\Request;
+use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -20,7 +21,7 @@ class SessionLoginResponseUnitTest extends UnitTestCase
     {
         // Arrange
 
-        $user = \Mockery::mock(User::class);
+        $user = Mockery::mock(User::class);
         $twoFactorToken = '2fa-token-123';
 
         // Act
@@ -42,7 +43,7 @@ class SessionLoginResponseUnitTest extends UnitTestCase
     {
         // Arrange
 
-        $user = \Mockery::mock(User::class);
+        $user = Mockery::mock(User::class);
         $twoFactorToken = '2fa-token-456';
 
         // Act
@@ -73,7 +74,7 @@ class SessionLoginResponseUnitTest extends UnitTestCase
     ): void {
         // Arrange
 
-        $userMock = \Mockery::mock(User::class);
+        $userMock = Mockery::mock(User::class);
         $userMock->shouldReceive('getAttribute')->with('id')->andReturn(1);
         $userMock->shouldReceive('getAttribute')->with('email')->andReturn('test@example.com');
         $userMock->shouldReceive('getAttribute')->with('name')->andReturn('Test User');
@@ -94,7 +95,7 @@ class SessionLoginResponseUnitTest extends UnitTestCase
 
         // Act
 
-        $jsonResponse = $actualResponse->toResponse(\Mockery::mock(Request::class));
+        $jsonResponse = $actualResponse->toResponse(Mockery::mock(Request::class));
 
         // Assert
 
